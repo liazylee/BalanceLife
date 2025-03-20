@@ -1,0 +1,907 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "A calorie tracking application backend with meal and workout tracking",
+        "title": "BalanceLife API",
+        "termsOfService": "http://swagger.io/terms/",
+        "contact": {
+            "name": "API Support",
+            "url": "https://github.com/zhenyili/BalanceLife",
+            "email": "support@balancelife.example.com"
+        },
+        "license": {
+            "name": "MIT",
+            "url": "https://opensource.org/licenses/MIT"
+        },
+        "version": "1.0"
+    },
+    "host": "localhost:8080",
+    "basePath": "/api",
+    "paths": {
+        "/meals/entries": {
+            "get": {
+                "description": "Returns meal entries for a user within a date range",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "meals"
+                ],
+                "summary": "Get meal entries for a user",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "userId",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Start date (YYYY-MM-DD)",
+                        "name": "startDate",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "End date (YYYY-MM-DD)",
+                        "name": "endDate",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.MealEntry"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Logs a meal for a user with specified portion size",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "meals"
+                ],
+                "summary": "Create a new meal entry",
+                "parameters": [
+                    {
+                        "description": "Meal entry details",
+                        "name": "entry",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handlers.mealEntryRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/models.MealEntry"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/meals/packages": {
+            "get": {
+                "description": "Returns a list of all meal packages, optionally filtered by goal type",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "meals"
+                ],
+                "summary": "Get all meal packages",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Goal type filter (LOSE, GAIN, ALL)",
+                        "name": "goalType",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.MealPackage"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/meals/packages/{id}": {
+            "get": {
+                "description": "Returns details of a specific meal package",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "meals"
+                ],
+                "summary": "Get a meal package by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Meal Package ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.MealPackage"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/users": {
+            "get": {
+                "description": "Returns a list of all users in the system",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "Get all users",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.User"
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Creates a new user with the provided details and calculates their nutritional goals",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "Create a new user",
+                "parameters": [
+                    {
+                        "description": "User details",
+                        "name": "user",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handlers.userRegistrationRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/models.User"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/users/{id}": {
+            "get": {
+                "description": "Returns details of a specific user",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "Get a user by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.User"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/workouts/entries": {
+            "get": {
+                "description": "Returns workout entries for a user within a date range",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "workouts"
+                ],
+                "summary": "Get workout entries for a user",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "userId",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Start date (YYYY-MM-DD)",
+                        "name": "startDate",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "End date (YYYY-MM-DD)",
+                        "name": "endDate",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.WorkoutEntry"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Logs a workout for a user with specified intensity and duration",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "workouts"
+                ],
+                "summary": "Create a new workout entry",
+                "parameters": [
+                    {
+                        "description": "Workout entry details",
+                        "name": "entry",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handlers.workoutEntryRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/models.WorkoutEntry"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/workouts/packages": {
+            "get": {
+                "description": "Returns a list of all workout packages, optionally filtered by goal type",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "workouts"
+                ],
+                "summary": "Get all workout packages",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Goal type filter (LOSE, GAIN, ALL)",
+                        "name": "goalType",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.WorkoutPackage"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/workouts/packages/{id}": {
+            "get": {
+                "description": "Returns details of a specific workout package",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "workouts"
+                ],
+                "summary": "Get a workout package by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Workout Package ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.WorkoutPackage"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "handlers.mealEntryRequest": {
+            "type": "object",
+            "required": [
+                "date",
+                "packageId",
+                "portionMultiplier",
+                "userId"
+            ],
+            "properties": {
+                "date": {
+                    "type": "string",
+                    "example": "2023-03-18"
+                },
+                "packageId": {
+                    "type": "string",
+                    "example": "meal1"
+                },
+                "portionMultiplier": {
+                    "type": "number",
+                    "maximum": 3,
+                    "minimum": 0.1,
+                    "example": 1
+                },
+                "userId": {
+                    "type": "string",
+                    "example": "usr1"
+                }
+            }
+        },
+        "handlers.userRegistrationRequest": {
+            "type": "object",
+            "required": [
+                "activityLevel",
+                "birthDate",
+                "email",
+                "gender",
+                "goal",
+                "height",
+                "name",
+                "password",
+                "weight"
+            ],
+            "properties": {
+                "activityLevel": {
+                    "type": "string",
+                    "enum": [
+                        "LOW",
+                        "MODERATE",
+                        "HIGH"
+                    ],
+                    "example": "MODERATE"
+                },
+                "birthDate": {
+                    "type": "string",
+                    "example": "1990-01-01"
+                },
+                "email": {
+                    "type": "string",
+                    "example": "john@example.com"
+                },
+                "gender": {
+                    "type": "string",
+                    "enum": [
+                        "MALE",
+                        "FEMALE",
+                        "OTHER"
+                    ],
+                    "example": "MALE"
+                },
+                "goal": {
+                    "type": "string",
+                    "enum": [
+                        "LOSE",
+                        "GAIN"
+                    ],
+                    "example": "LOSE"
+                },
+                "height": {
+                    "type": "number",
+                    "example": 180
+                },
+                "name": {
+                    "type": "string",
+                    "example": "John Doe"
+                },
+                "password": {
+                    "type": "string",
+                    "minLength": 6,
+                    "example": "SecurePassword123"
+                },
+                "weight": {
+                    "type": "number",
+                    "example": 80
+                }
+            }
+        },
+        "handlers.workoutEntryRequest": {
+            "type": "object",
+            "required": [
+                "date",
+                "durationMinutes",
+                "intensityMultiplier",
+                "packageId",
+                "userId"
+            ],
+            "properties": {
+                "date": {
+                    "type": "string",
+                    "example": "2023-03-18"
+                },
+                "durationMinutes": {
+                    "type": "integer",
+                    "maximum": 180,
+                    "minimum": 5,
+                    "example": 30
+                },
+                "intensityMultiplier": {
+                    "type": "number",
+                    "maximum": 2,
+                    "minimum": 0.5,
+                    "example": 1
+                },
+                "packageId": {
+                    "type": "string",
+                    "example": "workout1"
+                },
+                "userId": {
+                    "type": "string",
+                    "example": "usr1"
+                }
+            }
+        },
+        "models.ActivityLevel": {
+            "type": "string",
+            "enum": [
+                "LOW",
+                "MODERATE",
+                "HIGH"
+            ],
+            "x-enum-varnames": [
+                "ActivityLow",
+                "ActivityModerate",
+                "ActivityHigh"
+            ]
+        },
+        "models.Gender": {
+            "type": "string",
+            "enum": [
+                "MALE",
+                "FEMALE",
+                "OTHER"
+            ],
+            "x-enum-varnames": [
+                "GenderMale",
+                "GenderFemale",
+                "GenderOther"
+            ]
+        },
+        "models.GoalInfo": {
+            "type": "object",
+            "properties": {
+                "startDate": {
+                    "type": "string"
+                },
+                "startWeight": {
+                    "type": "number"
+                },
+                "targetCalories": {
+                    "type": "integer"
+                },
+                "targetCarbs": {
+                    "type": "integer"
+                },
+                "targetFat": {
+                    "type": "integer"
+                },
+                "targetProtein": {
+                    "type": "integer"
+                },
+                "targetWeight": {
+                    "type": "number"
+                },
+                "type": {
+                    "$ref": "#/definitions/models.GoalType"
+                }
+            }
+        },
+        "models.GoalType": {
+            "type": "string",
+            "enum": [
+                "LOSE",
+                "GAIN",
+                ""
+            ],
+            "x-enum-comments": {
+                "GoalTypeAll": "Used for filtering all goal types"
+            },
+            "x-enum-varnames": [
+                "GoalTypeLose",
+                "GoalTypeGain",
+                "GoalTypeAll"
+            ]
+        },
+        "models.MealEntry": {
+            "type": "object",
+            "properties": {
+                "calories": {
+                    "type": "integer"
+                },
+                "carbs": {
+                    "type": "integer"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "date": {
+                    "type": "string"
+                },
+                "entryId": {
+                    "type": "string"
+                },
+                "fat": {
+                    "type": "integer"
+                },
+                "mealType": {
+                    "$ref": "#/definitions/models.MealType"
+                },
+                "packageId": {
+                    "type": "string"
+                },
+                "portionMultiplier": {
+                    "type": "number"
+                },
+                "protein": {
+                    "type": "integer"
+                },
+                "timestamp": {
+                    "description": "Used for querying by time range",
+                    "type": "string"
+                },
+                "userId": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.MealPackage": {
+            "type": "object",
+            "properties": {
+                "baseCalories": {
+                    "type": "integer"
+                },
+                "baseCarbs": {
+                    "type": "integer"
+                },
+                "baseFat": {
+                    "type": "integer"
+                },
+                "baseProtein": {
+                    "type": "integer"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "goalType": {
+                    "description": "LOSE, GAIN, or BOTH",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.GoalType"
+                        }
+                    ]
+                },
+                "imageUrl": {
+                    "type": "string"
+                },
+                "ingredients": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "mealType": {
+                    "$ref": "#/definitions/models.MealType"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "packageId": {
+                    "type": "string"
+                },
+                "preparationSteps": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "models.MealType": {
+            "type": "string",
+            "enum": [
+                "BREAKFAST",
+                "LUNCH",
+                "DINNER",
+                "SNACK"
+            ],
+            "x-enum-varnames": [
+                "MealTypeBreakfast",
+                "MealTypeLunch",
+                "MealTypeDinner",
+                "MealTypeSnack"
+            ]
+        },
+        "models.User": {
+            "type": "object",
+            "properties": {
+                "activityLevel": {
+                    "$ref": "#/definitions/models.ActivityLevel"
+                },
+                "birthDate": {
+                    "type": "string"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "gender": {
+                    "$ref": "#/definitions/models.Gender"
+                },
+                "goal": {
+                    "$ref": "#/definitions/models.GoalInfo"
+                },
+                "height": {
+                    "type": "number"
+                },
+                "lastLoginAt": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "userId": {
+                    "type": "string"
+                },
+                "weight": {
+                    "type": "number"
+                }
+            }
+        },
+        "models.WorkoutEntry": {
+            "type": "object",
+            "properties": {
+                "caloriesBurned": {
+                    "type": "integer"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "date": {
+                    "type": "string"
+                },
+                "durationMinutes": {
+                    "type": "integer"
+                },
+                "entryId": {
+                    "type": "string"
+                },
+                "intensityMultiplier": {
+                    "type": "number"
+                },
+                "packageId": {
+                    "type": "string"
+                },
+                "timestamp": {
+                    "description": "Used for querying by time range",
+                    "type": "string"
+                },
+                "userId": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.WorkoutPackage": {
+            "type": "object",
+            "properties": {
+                "baseCaloriesBurn": {
+                    "type": "integer"
+                },
+                "baseDurationMinutes": {
+                    "type": "integer"
+                },
+                "caloriesBurnFormula": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "goalType": {
+                    "description": "LOSE, GAIN, or BOTH",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.GoalType"
+                        }
+                    ]
+                },
+                "imageUrl": {
+                    "type": "string"
+                },
+                "instructions": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "name": {
+                    "type": "string"
+                },
+                "packageId": {
+                    "type": "string"
+                },
+                "workoutType": {
+                    "type": "string"
+                }
+            }
+        }
+    },
+    "securityDefinitions": {
+        "ApiKeyAuth": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
+        }
+    },
+    "externalDocs": {
+        "description": "OpenAPI",
+        "url": "https://swagger.io/resources/open-api/"
+    }
+}

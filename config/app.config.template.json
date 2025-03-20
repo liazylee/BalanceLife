@@ -1,0 +1,20 @@
+{
+  "server": {
+    "port": "8080",
+    "readTimeout": 10,
+    "writeTimeout": 10
+  },
+  "mongodb": {
+    "uri": "mongodb://mongodb:27017",
+    "database": "balancelife",
+    "certificatePath": ""
+  },
+  "redis": {
+    "addr": "redis:6379",
+    "password": "",
+    "db": 0
+  },
+  "security": {
+    "jwtSecret": "your-secret-key"
+  }
+} 

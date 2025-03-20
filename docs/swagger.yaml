@@ -1,0 +1,621 @@
+basePath: /api
+definitions:
+  handlers.mealEntryRequest:
+    properties:
+      date:
+        example: "2023-03-18"
+        type: string
+      packageId:
+        example: meal1
+        type: string
+      portionMultiplier:
+        example: 1
+        maximum: 3
+        minimum: 0.1
+        type: number
+      userId:
+        example: usr1
+        type: string
+    required:
+    - date
+    - packageId
+    - portionMultiplier
+    - userId
+    type: object
+  handlers.userRegistrationRequest:
+    properties:
+      activityLevel:
+        enum:
+        - LOW
+        - MODERATE
+        - HIGH
+        example: MODERATE
+        type: string
+      birthDate:
+        example: "1990-01-01"
+        type: string
+      email:
+        example: john@example.com
+        type: string
+      gender:
+        enum:
+        - MALE
+        - FEMALE
+        - OTHER
+        example: MALE
+        type: string
+      goal:
+        enum:
+        - LOSE
+        - GAIN
+        example: LOSE
+        type: string
+      height:
+        example: 180
+        type: number
+      name:
+        example: John Doe
+        type: string
+      password:
+        example: SecurePassword123
+        minLength: 6
+        type: string
+      weight:
+        example: 80
+        type: number
+    required:
+    - activityLevel
+    - birthDate
+    - email
+    - gender
+    - goal
+    - height
+    - name
+    - password
+    - weight
+    type: object
+  handlers.workoutEntryRequest:
+    properties:
+      date:
+        example: "2023-03-18"
+        type: string
+      durationMinutes:
+        example: 30
+        maximum: 180
+        minimum: 5
+        type: integer
+      intensityMultiplier:
+        example: 1
+        maximum: 2
+        minimum: 0.5
+        type: number
+      packageId:
+        example: workout1
+        type: string
+      userId:
+        example: usr1
+        type: string
+    required:
+    - date
+    - durationMinutes
+    - intensityMultiplier
+    - packageId
+    - userId
+    type: object
+  models.ActivityLevel:
+    enum:
+    - LOW
+    - MODERATE
+    - HIGH
+    type: string
+    x-enum-varnames:
+    - ActivityLow
+    - ActivityModerate
+    - ActivityHigh
+  models.Gender:
+    enum:
+    - MALE
+    - FEMALE
+    - OTHER
+    type: string
+    x-enum-varnames:
+    - GenderMale
+    - GenderFemale
+    - GenderOther
+  models.GoalInfo:
+    properties:
+      startDate:
+        type: string
+      startWeight:
+        type: number
+      targetCalories:
+        type: integer
+      targetCarbs:
+        type: integer
+      targetFat:
+        type: integer
+      targetProtein:
+        type: integer
+      targetWeight:
+        type: number
+      type:
+        $ref: '#/definitions/models.GoalType'
+    type: object
+  models.GoalType:
+    enum:
+    - LOSE
+    - GAIN
+    - ""
+    type: string
+    x-enum-comments:
+      GoalTypeAll: Used for filtering all goal types
+    x-enum-varnames:
+    - GoalTypeLose
+    - GoalTypeGain
+    - GoalTypeAll
+  models.MealEntry:
+    properties:
+      calories:
+        type: integer
+      carbs:
+        type: integer
+      createdAt:
+        type: string
+      date:
+        type: string
+      entryId:
+        type: string
+      fat:
+        type: integer
+      mealType:
+        $ref: '#/definitions/models.MealType'
+      packageId:
+        type: string
+      portionMultiplier:
+        type: number
+      protein:
+        type: integer
+      timestamp:
+        description: Used for querying by time range
+        type: string
+      userId:
+        type: string
+    type: object
+  models.MealPackage:
+    properties:
+      baseCalories:
+        type: integer
+      baseCarbs:
+        type: integer
+      baseFat:
+        type: integer
+      baseProtein:
+        type: integer
+      description:
+        type: string
+      goalType:
+        allOf:
+        - $ref: '#/definitions/models.GoalType'
+        description: LOSE, GAIN, or BOTH
+      imageUrl:
+        type: string
+      ingredients:
+        items:
+          type: string
+        type: array
+      mealType:
+        $ref: '#/definitions/models.MealType'
+      name:
+        type: string
+      packageId:
+        type: string
+      preparationSteps:
+        items:
+          type: string
+        type: array
+    type: object
+  models.MealType:
+    enum:
+    - BREAKFAST
+    - LUNCH
+    - DINNER
+    - SNACK
+    type: string
+    x-enum-varnames:
+    - MealTypeBreakfast
+    - MealTypeLunch
+    - MealTypeDinner
+    - MealTypeSnack
+  models.User:
+    properties:
+      activityLevel:
+        $ref: '#/definitions/models.ActivityLevel'
+      birthDate:
+        type: string
+      createdAt:
+        type: string
+      email:
+        type: string
+      gender:
+        $ref: '#/definitions/models.Gender'
+      goal:
+        $ref: '#/definitions/models.GoalInfo'
+      height:
+        type: number
+      lastLoginAt:
+        type: string
+      name:
+        type: string
+      userId:
+        type: string
+      weight:
+        type: number
+    type: object
+  models.WorkoutEntry:
+    properties:
+      caloriesBurned:
+        type: integer
+      createdAt:
+        type: string
+      date:
+        type: string
+      durationMinutes:
+        type: integer
+      entryId:
+        type: string
+      intensityMultiplier:
+        type: number
+      packageId:
+        type: string
+      timestamp:
+        description: Used for querying by time range
+        type: string
+      userId:
+        type: string
+    type: object
+  models.WorkoutPackage:
+    properties:
+      baseCaloriesBurn:
+        type: integer
+      baseDurationMinutes:
+        type: integer
+      caloriesBurnFormula:
+        type: string
+      description:
+        type: string
+      goalType:
+        allOf:
+        - $ref: '#/definitions/models.GoalType'
+        description: LOSE, GAIN, or BOTH
+      imageUrl:
+        type: string
+      instructions:
+        items:
+          type: string
+        type: array
+      name:
+        type: string
+      packageId:
+        type: string
+      workoutType:
+        type: string
+    type: object
+externalDocs:
+  description: OpenAPI
+  url: https://swagger.io/resources/open-api/
+host: localhost:8080
+info:
+  contact:
+    email: support@balancelife.example.com
+    name: API Support
+    url: https://github.com/zhenyili/BalanceLife
+  description: A calorie tracking application backend with meal and workout tracking
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+  termsOfService: http://swagger.io/terms/
+  title: BalanceLife API
+  version: "1.0"
+paths:
+  /meals/entries:
+    get:
+      description: Returns meal entries for a user within a date range
+      parameters:
+      - description: User ID
+        in: query
+        name: userId
+        required: true
+        type: string
+      - description: Start date (YYYY-MM-DD)
+        in: query
+        name: startDate
+        type: string
+      - description: End date (YYYY-MM-DD)
+        in: query
+        name: endDate
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.MealEntry'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get meal entries for a user
+      tags:
+      - meals
+    post:
+      consumes:
+      - application/json
+      description: Logs a meal for a user with specified portion size
+      parameters:
+      - description: Meal entry details
+        in: body
+        name: entry
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.mealEntryRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.MealEntry'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Create a new meal entry
+      tags:
+      - meals
+  /meals/packages:
+    get:
+      description: Returns a list of all meal packages, optionally filtered by goal
+        type
+      parameters:
+      - description: Goal type filter (LOSE, GAIN, ALL)
+        in: query
+        name: goalType
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.MealPackage'
+            type: array
+      summary: Get all meal packages
+      tags:
+      - meals
+  /meals/packages/{id}:
+    get:
+      description: Returns details of a specific meal package
+      parameters:
+      - description: Meal Package ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.MealPackage'
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get a meal package by ID
+      tags:
+      - meals
+  /users:
+    get:
+      description: Returns a list of all users in the system
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.User'
+            type: array
+      summary: Get all users
+      tags:
+      - users
+    post:
+      consumes:
+      - application/json
+      description: Creates a new user with the provided details and calculates their
+        nutritional goals
+      parameters:
+      - description: User details
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.userRegistrationRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.User'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Create a new user
+      tags:
+      - users
+  /users/{id}:
+    get:
+      description: Returns details of a specific user
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.User'
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get a user by ID
+      tags:
+      - users
+  /workouts/entries:
+    get:
+      description: Returns workout entries for a user within a date range
+      parameters:
+      - description: User ID
+        in: query
+        name: userId
+        required: true
+        type: string
+      - description: Start date (YYYY-MM-DD)
+        in: query
+        name: startDate
+        type: string
+      - description: End date (YYYY-MM-DD)
+        in: query
+        name: endDate
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.WorkoutEntry'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get workout entries for a user
+      tags:
+      - workouts
+    post:
+      consumes:
+      - application/json
+      description: Logs a workout for a user with specified intensity and duration
+      parameters:
+      - description: Workout entry details
+        in: body
+        name: entry
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.workoutEntryRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.WorkoutEntry'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Create a new workout entry
+      tags:
+      - workouts
+  /workouts/packages:
+    get:
+      description: Returns a list of all workout packages, optionally filtered by
+        goal type
+      parameters:
+      - description: Goal type filter (LOSE, GAIN, ALL)
+        in: query
+        name: goalType
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.WorkoutPackage'
+            type: array
+      summary: Get all workout packages
+      tags:
+      - workouts
+  /workouts/packages/{id}:
+    get:
+      description: Returns details of a specific workout package
+      parameters:
+      - description: Workout Package ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.WorkoutPackage'
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get a workout package by ID
+      tags:
+      - workouts
+securityDefinitions:
+  ApiKeyAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
